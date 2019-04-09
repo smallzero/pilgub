@@ -1,0 +1,1 @@
+ALTER TABLE `hasilsuara` ADD `tidakhadir` INT NOT NULL AFTER `total`, ADD `dptb` INT NOT NULL AFTER `tidakhadir`, ADD `suratrusak` INT NOT NULL AFTER `dptb`;

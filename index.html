@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Pemilihan Gubernur Jawa Timur 2018</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="datatables/datatables.min.css">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="datatables/datatables.min.js"></script>
+</head>
+
+<body>
+    <!-- Begin page content -->
+    <div class="container" style="padding-top: 10px">
+        <div class="page-header">
+            <h1>
+                <img src="images/Jawa_Timur.png" width="60px" border="0" />Pemilihan Gubernur Jawa Timur 2018
+            </h1>
+            <hr/>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                <div align="center">
+                    <span style="color: black; font-size: 50px">1</span>
+                    <img src="images/pasangan_1.PNG" width="100px" border=0/>
+                </div>
+                <b>Khofifah Indar Parawansa dan Emil Dardak</b>
+            </div>
+            <div class="col-md-4">
+                <div id="pasangan_1" class="p-3 bg-success" style="height:80%" align="center">
+                    <strong style="color:white">
+                        <span id="persenPas1">0%, 0</span> Suara</strong>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div align="center">
+                    <span style="color: black; font-size: 50px">2</span>
+                    <img src="images/pasangan_2.PNG" width="100px" border=0/>
+                </div>
+                <b>Saifullah Yusuf dan Puti Guntur Soekarno</b>
+            </div>
+            <div class="col-md-4">
+                <div id="pasangan_2" class="p-3 bg-danger" style="height:80%;" align="center">
+                    <strong style="color:white">
+                        <span id="persenPas2">0%, 0</span> Suara</strong>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <h4>Data Tabel Perolehan</h4>
+        <hr/>
+        <div align="right" id="summary"></div>
+        <table id="table01" class="display">
+            <thead>
+                <tr>
+                    <th scope="col">HP</th>
+                    <th scope="col">Kecamatan</th>
+                    <th scope="col">Desa</th>
+                    <th scope="col">TPS</th>
+                    <th scope="col" align="center">Jumlah Suara Pasangan 1</th>
+                    <th scope="col" align="center">Jumlah Suara Pasangan 2</th>
+                    <th scope="col" align="center">Tidak Sah</th>
+                    <th scope="col" align="right">Total</th>
+                    <th scope="col" align="center">Tidak Hadir</th>
+                    <th scope="col" align="center">DPTB</th>
+                    <th scope="col" align="center">Surat Rusak</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+
+    <script>
+
+
+
+        $(document).ready(function () {
+            function loadData(){
+                //get barchart
+                $.getJSON("backend/barchart.php", function (data) {
+                    //console.log("test : " + JSON.stringify(data));
+                    var totalSuara = parseFloat(data.pasangan_1) + parseFloat(data.pasangan_2);
+                    var pas1Persen = Math.round((parseFloat(data.pasangan_1) / totalSuara) * 100);
+                    var pas2Persen = Math.round((parseFloat(data.pasangan_2) / totalSuara) * 100);
+
+                    //console.log("persen pas1 & pas2 : " + pas1Persen + ", " + pas2Persen);
+                    $('#pasangan_1').attr("style", "width:" + pas1Persen + "%;height:80%");
+                    $('#persenPas1').html(pas1Persen + '%, ' + data.pasangan_1);
+                    $('#pasangan_2').attr("style", "width:" + pas2Persen + "%;height:80%");
+                    $('#persenPas2').html(pas2Persen + '%, ' + data.pasangan_2);
+                });
+
+                //get summary
+                $.getJSON("backend/summary.php", function (data) {
+                    //console.log("test : " + JSON.stringify(data));
+                    $('#summary').html('<span class="badge badge-secondary bg-success">Pasangan 1 (' + data.pasangan_1
+                        + ')</span><span class="badge badge-secondary bg-danger">Pasangan 2 ('
+                        + data.pasangan_2 + ')</span><span class="badge badge-secondary">Tidak Sah (' + data.tidaksah + ')</span>'
+                        + '<span class="badge badge-secondary bg-info">Total Suara Sah (' + (parseFloat(data.pasangan_2) + parseFloat(data.pasangan_1)) + ')</span>'
+                        + '<span class="badge badge-secondary bg-warning">Tidak Hadir (' + (parseFloat(data.tidakhadir)) + ')</span>'
+                        + '<span class="badge badge-secondary bg-primary">DPTB (' + (parseFloat(data.dptb)) + ')</span>'
+                        + '<span class="badge badge-secondary bg-dark">Surat Rusak (' + (parseFloat(data.suratrusak)) + ')</span>')
+                });
+            }            
+            loadData();
+
+            var dataTable = $('#table01').DataTable({
+                responsive: true,
+                ajax: {
+                    url: 'backend/datatable.php',
+                    dataSrc: 'row'
+                },
+                columns: [
+                    { data: 'nohp' },
+                    { data: 'kecamatan' },
+                    { data: 'desa' },
+                    { data: 'tps' },
+                    { data: 'kofifah_emil' },
+                    { data: 'saiful_puti' },
+                    { data: 'tidaksah' },
+                    { data: 'total' },
+                    { data: 'tidakhadir' },
+                    { data: 'dptb' },
+                    { data: 'suratrusak' }
+                ],
+                language: {
+                    decimal: "",
+                    emptyTable: "Tidak ada data yang tersedia",
+                    info: "Menampilkan _START_ sampai dengan _END_ dari _TOTAL_ data",
+                    infoEmpty: "Menampilkan 0 sampai dengan 0 dari 0 data",
+                    infoFiltered: "(dipilih dari _MAX_ total data)",
+                    infoPostFix: "",
+                    thousands: ",",
+                    lengthMenu: "Menampilkan _MENU_ Baris Data",
+                    loadingRecords: "Menunggu...",
+                    processing: "Sedang diproses...",
+                    search: "Pencarian Data :",
+                    zeroRecords: "Tidak ada data yang cocok",
+                    paginate: {
+                        first: "Pertama",
+                        last: "Terakhir",
+                        next: "Selanjutnya",
+                        previous: "Sebelumnya"
+                    },
+                    aria: {
+                        sortAscending: ": activate to sort column ascending",
+                        sortDescending: ": activate to sort column descending"
+                    }
+                }
+            });
+
+            setInterval(function () {
+                loadData();
+                dataTable.ajax.reload();
+            }, 60000);
+        });
+
+
+
+    </script>
+
+
+</html>
